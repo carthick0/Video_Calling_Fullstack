@@ -1,15 +1,21 @@
 
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
+
+import Home from './pages/Home'
+import Room from './pages/Room'
 
 function App() {
   
 
   return (
-    <div data-theme="light">
-      <h1 className="text-3xl font-bold underline text-emerald-300">
-      Hello world!
-    </h1>
-    </div>
+    <>
+
+    <Routes>
+      <Route path='/' element={<Home/>}/>
+      <Route path='/room/:id' element={<Room/>}/>
+    </Routes>
+    </>
     
   )
 }
