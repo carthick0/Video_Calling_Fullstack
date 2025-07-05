@@ -2,43 +2,46 @@ import { Socket } from "socket.io";
 import { v4 as UUIDv4 } from "uuid";
 import IRoomParams from "../interfaces/iroom_params";
 
-
-  const rooms:Record<string,string[]>={};
+const rooms: Record<string, string[]> = {};
 
 const roomHandler = (socket: Socket) => {
 
-
   const createRoom = () => {
-    // This will be our unique room ID where multiple connections will exchange info
     const roomId = UUIDv4();
-
-    // We will make the socket connection enter a new room
     socket.join(roomId);
-
-    rooms[roomId]=[]
-
-    // Emit an event from the server side that the socket has been added to the room
+    rooms[roomId] = [];
     socket.emit("room-created", { roomId });
-
     console.log("Room created with ID", roomId);
   };
-const joinRoom = ({ roomId, peerId }:IRoomParams) => {
 
-  if(rooms[roomId]){
+  const joinRoom = ({ roomId, peerId }: IRoomParams) => {
+    if (rooms[roomId]) {
       console.log("New user has joined the room", roomId, "with peer id", peerId);
       rooms[roomId].push(peerId);
-      socket.join(roomId)
+      socket.join(roomId);
 
+      // Inform other users in the room
+      socket.on("ready", () => {
+        socket.to(roomId).emit("user-joined", { peerId });
+      });
 
-      socket.emit("get-users",{
+      // Send the list of current participants to the user who joined
+      socket.emit("get-users", {
+        participants: rooms[roomId],
         roomId,
-        participants:rooms[roomId]
-      })
-  }
+      });
+    }
+  };
 
-};
+  // New Chat Message Event Handler
+  socket.on("send-message", ({ roomId, message, sender }) => {
+    console.log(`Message from ${sender} in room ${roomId}: ${message}`);
+    
+    // Broadcast to everyone in the room except sender
+    socket.to(roomId).emit("receive-message", { message, sender });
+  });
 
-  // We will call the above functions when the client emits events to create/join a room
+  // Existing event listeners
   socket.on("create-room", createRoom);
   socket.on("joined-room", joinRoom);
 };
