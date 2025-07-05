@@ -4,7 +4,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { PORT } from "./config/server_config";
 import roomHandler from "./handlers/room_handler";
-
+import "./server/peer_server";
 const app = express();
 
 app.use(cors());
