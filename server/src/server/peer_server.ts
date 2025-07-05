@@ -1,4 +1,4 @@
-import { PeerServer } from "peer";
+const { PeerServer }: any = require("peer");
 
 PeerServer({
   corsOptions: {

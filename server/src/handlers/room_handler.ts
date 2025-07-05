@@ -34,7 +34,7 @@ const roomHandler = (socket: Socket) => {
   };
 
   // New Chat Message Event Handler
-  socket.on("send-message", ({ roomId, message, sender }) => {
+  socket.on("send-message", ({ roomId, message, sender }: { roomId: string; message: string; sender: string }) => {
     console.log(`Message from ${sender} in room ${roomId}: ${message}`);
 
     // Broadcast to everyone in the room except sender
